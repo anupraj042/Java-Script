@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>DHTML</h1>
+        <p id="demo">Example of DHTML</p>
+        <input type="Submit" onclick=btn();>
+        <script>
+            function btn()
+            {
+                document.getElementByTagName("h1").style.background-color="green";
+                document.getElementById("demo").innerHtml="Dynamic HTML";
+            }
+            </script>
+            </body>
+</html>

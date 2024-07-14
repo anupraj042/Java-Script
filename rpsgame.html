@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JavaScript Game | Rock Paper Scissors</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f6f7fb;
+    }
+    ::selection {
+      color: #fff;
+      background-color: #7d2ae8;
+    }
+    .container {
+      padding: 2rem 3rem;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+    .result_images {
+      display: flex;
+      justify-content: center;
+      column-gap: 2rem;
+    }
+    .container.start .user_result {
+      transform-origin: left;
+      animation: userShake 0.7s ease infinite;
+    }
+    @keyframes userShake {
+      50% {
+        transform: rotate(10deg);
+      }
+    }
+    .container.start .cpu_result {
+      transform-origin: right;
+      animation: cpuShake 0.7s ease infinite;
+    }
+    @keyframes cpuShake {
+      50% {
+        transform: rotate(-10deg);
+      }
+    }
+    .result_images img {
+      width: 80px;
+    }
+    .user_result img {
+      transform: rotate(90deg);
+    }
+    .cpu_result img {
+      transform: rotate(-90deg) rotateY(180deg);
+    }
+    .result {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #7d2ae8;
+      margin-top: 1rem;
+    }
+    .option_images {
+      display: flex;
+      align-items: center;
+      margin-top: 1.5rem;
+      justify-content: space-around;
+    }
+    .container.start .option_images {
+      pointer-events: none;
+    }
+    .option_image {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.5;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+    .option_image:hover {
+      opacity: 1;
+    }
+    .option_image.active {
+      opacity: 1;
+    }
+    .option_image img {
+      pointer-events: none;
+      width: 50px;
+    }
+    .option_image p {
+      color: #7d2ae8;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      pointer-events: none;
+    }
+    .scoreboard-container {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    .scoreboard {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .scoreboard th, .scoreboard td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    .scoreboard th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: #7d2ae8;
+      color: white;
+    }
+    .scoreboard td {
+      width: 50%;
+    }
+    .scoreboard th, .scoreboard td {
+      width: 33.33%;
+    }
+    .reset-button {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #7d2ae8;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .reset-button:hover {
+      background-color: #5b1dbf;
+    }
+  </style>
+</head>
+<body>
+  <section class="container">
+    <div class="result_field">
+      <div class="result_images">
+        <span class="user_result">
+          <img src="https://img.icons8.com/ios/452/rock.png" alt="Rock">
+        </span>
+        <span class="cpu_result">
+          <img src="https://img.icons8.com/ios/452/rock.png" alt="Rock">
+        </span>
+      </div>
+      <div class="result">Rock Paper Scissors</div>
+    </div>
+    <div class="option_images">
+      <div class="option_image" data-choice="rock">
+        <img src="https://img.icons8.com/ios/452/rock.png" alt="Rock">
+        <p>Rock</p>
+      </div>
+      <div class="option_image" data-choice="paper">
+        <img src="https://img.icons8.com/ios/452/paper.png" alt="Paper">
+        <p>Paper</p>
+      </div>
+      <div class="option_image" data-choice="scissors">
+        <img src="https://img.icons8.com/ios/452/scissors.png" alt="Scissors">
+        <p>Scissors</p>
+      </div>
+    </div>
+    <div class="scoreboard-container">
+      <table class="scoreboard">
+        <thead>
+          <tr>
+            <th>User Choice</th>
+            <th>Computer Choice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="user-choice">-</td>
+            <td id="computer-choice">-</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="scoreboard" style="margin-top: 1rem;">
+        <thead>
+          <tr>
+            <th>Total Games Played</th>
+            <th>User Score</th>
+            <th>Computer Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="total-games">0</td>
+            <td id="user-score">0</td>
+            <td id="computer-score">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="reset-button">Reset Game</button>
+  </section>
+  <script>
+    const choices = ["rock", "paper", "scissors"];
+    const choiceImages = {
+      rock: "https://img.icons8.com/ios/452/rock.png",
+      paper: "https://img.icons8.com/ios/452/paper.png",
+      scissors: "https://img.icons8.com/ios/452/scissors.png"
+    };
+    let userScore = 0;
+    let computerScore = 0;
+    let totalGames = 0;
+
+    const optionImages = document.querySelectorAll(".option_image");
+    const userResultImg = document.querySelector(".user_result img");
+    const cpuResultImg = document.querySelector(".cpu_result img");
+    const resultText = document.querySelector(".result");
+    const userChoiceDisplay = document.getElementById("user-choice");
+    const computerChoiceDisplay = document.getElementById("computer-choice");
+    const totalGamesDisplay = document.getElementById("total-games");
+    const userScoreDisplay = document.getElementById("user-score");
+    const computerScoreDisplay = document.getElementById("computer-score");
+    const resetButton = document.querySelector(".reset-button");
+
+    optionImages.forEach(option => {
+      option.addEventListener("click", () => {
+        const userChoice = option.getAttribute("data-choice");
+        const computerChoice = choices[Math.floor(Math.random() * 3)];
+        displayChoices(userChoice, computerChoice);
+        updateScore(userChoice, computerChoice);
+      });
+    });
+
+    resetButton.addEventListener("click", resetGame);
+
+    function displayChoices(userChoice, computerChoice) {
+      userResultImg.src = choiceImages[userChoice];
+      cpuResultImg.src = choiceImages[computerChoice];
+      userChoiceDisplay.textContent = userChoice.charAt(0).toUpperCase() + userChoice.slice(1);
+      computerChoiceDisplay.textContent = computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1);
+    }
+
+    function updateScore(userChoice, computerChoice) {
+      totalGames++;
+      if (userChoice === computerChoice) {
+        resultText.textContent = "It's a tie!";
+      } else if (
+        (userChoice === "rock" && computerChoice === "scissors") ||
+        (userChoice === "paper" && computerChoice === "rock") ||
+        (userChoice === "scissors" && computerChoice === "paper")
+      ) {
+        userScore++;
+        resultText.textContent = "You win!";
+      } else {
+        computerScore++;
+        resultText.textContent = "Computer wins!";
+      }
+      totalGamesDisplay.textContent = totalGames;
+      userScoreDisplay.textContent = userScore;
+      computerScoreDisplay.textContent = computerScore;
+    }
+
+    function resetGame() {
+      userScore = 0;
+      computerScore = 0;
+      totalGames = 0;
+      userResultImg.src = choiceImages["rock"];
+      cpuResultImg.src = choiceImages["rock"];
+      resultText.textContent = "Rock Paper Scissors";
+      userChoiceDisplay.textContent = "-";
+      computerChoiceDisplay.textContent = "-";
+      totalGamesDisplay.textContent = totalGames;
+      userScoreDisplay.textContent = userScore;
+      computerScoreDisplay.textContent = computerScore;
+    }
+  </script>
+</body>
+</html>
